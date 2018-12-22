@@ -6,20 +6,21 @@ function onScoreUpdate(dropPosition, bounciness, size, bucketLabel) {
 }
 
 function runAnalysis() {
-  const testSetSize = 10;
+  const testSetSize = 100;
   const [testSet, trainingSet] = splitDataset(outputs, testSetSize);
-  let numberCorrect = 0;
-  for (let i = 0; i < testSet.length; i++) {
-    const bucket = knn(trainingSet, testSet[i][0]);
-    console.log(bucket, testSet[i][3]);
-    if (bucket === testSet[i][3]) {
-      numberCorrect++;
-    }
-  }
-  console.log("Accuracy:", numberCorrect / testSetSize);
+
+  _.range(1, 20).forEach(k => {
+    const accurancy = _.chain(testSet)
+      .filter(testPoint => knn(trainingSet, testPoint[0], k) === testPoint[3])
+      .size()
+      .divide(testSetSize)
+      .value();
+
+    console.log("For k of ", k, "accuracy is", accurancy);
+  });
 }
 
-function knn(data, point) {
+function knn(data, point, k) {
   return _.chain(data)
     .map(row => [distance(row[0], point), row[3]])
     .sortBy(row => row[0])
